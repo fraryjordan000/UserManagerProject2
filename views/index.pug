@@ -1,0 +1,24 @@
+head
+    title User Manager App
+body
+    h1 Welcome To The User Management
+    div(id="panel")
+        form(action="/search", method="get")
+            input(type="text", name="search", placeholder="Search")
+        form(action="/addUser", method="post")
+            input(type="text", name="first_name", placeholder="First Name")
+            input(type="text", name="last_name", placeholder="Last Name")
+            input(type="text", name="email", placeholder="Email")
+            input(type="text", name="age", placeholder="Age")
+            button(type="submit") Add User
+    div(id="userList")
+        each val in users
+            div
+                form(action="/editUser$"+val.id, method="post")
+                    input(type="text", name="first_name", placeholder="First Name", value=val.first_name)
+                    input(type="text", name="last_name", placeholder="Last Name", value=val.last_name)
+                    input(type="text", name="email", placeholder="Email", value=val.email)
+                    input(type="text", name="age", placeholder="Age", value=val.age)
+                    button(type="submit") Save Changes
+                form(action="/deleteUser$"+val.id, method="post")
+                    button(type="submit") Remove User
