@@ -1,16 +1,33 @@
 head
     title User Manager App
 body
-    h1 Welcome To The User Management
+    if search.status
+        h1= `Search results for ${search.param} '${search.query}'`
+    else
+        h1 Welcome To The User Management
     div(id="panel")
-        form(action="/search", method="get")
-            input(type="text", name="search", placeholder="Search")
-        form(action="/addUser", method="post")
-            input(type="text", name="first_name", placeholder="First Name")
-            input(type="text", name="last_name", placeholder="Last Name")
-            input(type="text", name="email", placeholder="Email")
-            input(type="text", name="age", placeholder="Age")
-            button(type="submit") Add User
+        if !search.status
+            div
+                form(action="/updateParam", method="post")
+                    select(onchange="this.form.submit()", id="paramSelect", name="searchParam")
+                        option(value=search.param, selected=true)
+                        option(value="first_name") first_name
+                        option(value="last_name") last_name
+                        option(value="email") email
+                    p= `Selected Parameter: ${search.param}`
+                form(action="/searchUsers", method="post")
+                    input(type="text", name="search", placeholder="Search Users")
+                    button(type="submit") Search
+            form(action="/addUser", method="post")
+                input(type="text", name="first_name", placeholder="First Name")
+                input(type="text", name="last_name", placeholder="Last Name")
+                input(type="text", name="email", placeholder="Email")
+                input(type="text", name="age", placeholder="Age")
+                button(type="submit") Add User
+        else
+            form(action="/", method="get")
+                button(type="submit") Back
+        
     div(id="userList")
         each val in users
             div
