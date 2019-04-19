@@ -53,7 +53,7 @@ mongo.connect(url, (err, client) => {
           break;
         case 'email':
           for(let i in items) {
-            if(items[i].email.match(regex).length === 0) {
+            if(items[i].email.match(regex) !== null) {
               rtn.push(items[i]);
             }
           }
@@ -79,7 +79,6 @@ mongo.connect(url, (err, client) => {
   });
   em.on('getSearchParam', (cb) => {
     collection_p.find().toArray((err, items) => {
-      console.log(items[0].param);
       cb(items[0].param);
     });
   });
@@ -90,18 +89,43 @@ mongo.connect(url, (err, client) => {
   });
 });
 
-function sortUsers(order) {
-  let rtn;
-  if(order === 'ascend') {
-    
-    return rtn;
-  }
-  
-  return rtn;
-}
-
-function getSearchParam(cb) {
-  
+function sortUsers(order, cb) {
+  let letters = {a:1,b:2,c:3,d:4,e:5,f:6,g:7,h:8,i:9,j:10,k:11,l:12,m:13,n:14,o:15,p:16,q:17,r:18,s:19,t:20,u:21,v:22,w:23,x:24,y:25,z:26};
+  em.emit('getUser', '*', users => {
+    em.emit('getSearchParam' , param => {
+      let rtn = users;
+      let passAgain = true;
+      switch(order) {
+        case 'ZA':
+          while(passAgain) {
+            passAgain = false;
+            for(let i=1; i<rtn.length; i++) {
+              if(letters[rtn[i][param][0].toLowerCase()] > letters[rtn[i-1][param][0].toLowerCase()]) {
+                let tmp = rtn[i];
+                rtn[i] = rtn[i-1];
+                rtn[i-1] = tmp;
+                passAgain = true;
+              }
+            }
+          }
+          break;
+        default:
+          while(passAgain) {
+            passAgain = false;
+            for(let i=1; i<rtn.length; i++) {
+              if(letters[rtn[i][param][0].toLowerCase()] < letters[rtn[i-1][param][0].toLowerCase()]) {
+                let tmp = rtn[i];
+                rtn[i] = rtn[i-1];
+                rtn[i-1] = tmp;
+                passAgain = true;
+              }
+            }
+          }
+          break;
+      }
+      cb(rtn, param);
+    });
+  });
 }
 
 /* GET home page. */
@@ -150,6 +174,18 @@ router.post(/(\/updateParam)/, (req, res, next) => {
   em.emit('setSearchParam', searchParam, () => {
     res.redirect('/');
   })
+});
+
+router.post(/(\/sortUsersAZ)/, (req, res, next) => {
+  sortUsers('AZ', (users, param) => {
+    res.render('index', { users: users, search: {status: false, query: '', param: param} });
+  });
+});
+
+router.post(/(\/sortUsersZA)/, (req, res, next) => {
+  sortUsers('ZA', (users, param) => {
+    res.render('index', { users: users, search: {status: false, query: '', param: param} });
+  });
 });
 
 module.exports = router;

@@ -1,5 +1,70 @@
 head
     title User Manager App
+    style(type="text/css").
+        #sort {
+            display: flex;
+            width: 150px;
+            justify-content: space-around;
+        }
+        .addUser {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 5px;
+            border: 1px solid #000;
+            border-radius: 3px;
+
+            width: 50%;
+        }
+        #userList {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 60%;
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .user {
+            display: flex;
+            padding: 5px;
+            border: 1px solid #777;
+            border-radius: 5px;
+            width: 100%;
+            margin-top: 5px;
+        }
+        .user form {
+            display: flex;
+            justify-content: center;
+            align-items: space-around;
+            margin: 5px 0px;
+        }
+        .user form input, .user form button {
+            margin: 0 5px;
+        }
+        button {
+            height: 23px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #eee;
+        }
+        input {
+            width: 150px;
+            height: 23px;
+            border-radius: 5px;
+            outline: none;
+            margin: 0 1px;
+        }
+        select {
+            width: 150px;
+            height: 23px;
+            border-radius: 5px;
+            
+        }
+        
 body
     if search.status
         h1= `Search results for ${search.param} '${search.query}'`
@@ -9,20 +74,26 @@ body
         if !search.status
             div
                 form(action="/updateParam", method="post")
+                    h3 Search/Sort parameter:
                     select(onchange="this.form.submit()", id="paramSelect", name="searchParam")
-                        option(value=search.param, selected=true)
-                        option(value="first_name") first_name
-                        option(value="last_name") last_name
-                        option(value="email") email
-                    p= `Selected Parameter: ${search.param}`
+                        each val in ["first_name", "last_name", "email"]
+                            if val == search.param
+                                option(value=val, selected=true)= val
+                            else
+                                option(value=val)= val
                 form(action="/searchUsers", method="post")
                     input(type="text", name="search", placeholder="Search Users")
                     button(type="submit") Search
-            form(action="/addUser", method="post")
-                input(type="text", name="first_name", placeholder="First Name")
-                input(type="text", name="last_name", placeholder="Last Name")
-                input(type="text", name="email", placeholder="Email")
-                input(type="text", name="age", placeholder="Age")
+                div(id="sort")
+                    form(action="/sortUsersAZ", method="post")
+                        button(type="submit") Sort A-Z
+                    form(action="/sortUsersZA", method="post")
+                        button(type="submit") Sort Z-A
+            form(action="/addUser", method="post", class="addUser")
+                input(type="text", name="first_name", placeholder="First Name", required)
+                input(type="text", name="last_name", placeholder="Last Name", required)
+                input(type="text", name="email", placeholder="Email", required)
+                input(type="text", name="age", placeholder="Age", required)
                 button(type="submit") Add User
         else
             form(action="/", method="get")
@@ -30,7 +101,7 @@ body
         
     div(id="userList")
         each val in users
-            div
+            div(class="user")
                 form(action="/editUser$"+val.id, method="post")
                     input(type="text", name="first_name", placeholder="First Name", value=val.first_name)
                     input(type="text", name="last_name", placeholder="Last Name", value=val.last_name)
